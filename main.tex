@@ -1,0 +1,612 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage[utf8]{vietnam}
+\usepackage{caption}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\title{Reinforcement Prompting cho Phân Tích Cảm Xúc Tài Chính}
+\author{
+    \IEEEauthorblockN{
+        Trần Quốc Khánh\textsuperscript{1} \quad
+        Hoàng Ngọc Nam\textsuperscript{2} \quad
+        Nguyễn Văn Linh\textsuperscript{3} \quad
+        Nguyễn Hữu Hoàng Nam\textsuperscript{4}
+    } \\
+    \IEEEauthorblockA{
+        \textsuperscript{23020387, \texttt{23020387@vnu.edu.vn} \quad \\
+        \textsuperscript{23020395, \texttt{23020387@vnu.edu.vn} \quad
+        \textsuperscript{ 23020405, \texttt{23020387@vnu.edu.vn}
+    }
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Báo cáo này nghiên cứu Reinforcement Prompting như một giải pháp tiềm năng cho phân tích cảm xúc tài chính. Chúng tôi thảo luận về các vấn đề liên quan đến quyền riêng tư, khó khăn trong việc gán nhãn dữ liệu và hiệu quả của phương pháp tổng hợp dữ liệu.
+\end{abstract}
+
+\section{Giới Thiệu}
+Các mô hình ngôn ngữ lớn (LLMs) đã tạo ra một cuộc cách mạng trong cách chúng ta xử lý và hiểu ngôn ngữ tự nhiên, mở ra những ứng dụng đột phá trong nhiều lĩnh vực. Từ chăm sóc sức khỏe đến giáo dục, từ dịch vụ khách hàng đến giải trí, LLMs đã chứng minh khả năng vượt trội trong việc tạo văn bản, dịch thuật, tóm tắt và trả lời câu hỏi. Trong lĩnh vực y tế, LLMs hỗ trợ chẩn đoán bệnh thông qua phân tích hồ sơ bệnh án và tài liệu y khoa. Trong giáo dục, chúng giúp cá nhân hóa nội dung học tập và cung cấp trợ lý ảo thông minh. Ngành dịch vụ khách hàng cũng được cải thiện đáng kể nhờ khả năng phản hồi tự động và chính xác của LLMs. Trong lĩnh vực tài chính, LLMs đặc biệt hữu ích trong phân tích cảm xúc, đánh giá rủi ro và phát hiện gian lận. Bằng cách xử lý khối lượng lớn dữ liệu văn bản, LLMs có thể trích xuất thông tin quan trọng và đưa ra dự đoán chính xác, hỗ trợ các nhà đầu tư và tổ chức tài chính đưa ra quyết định thông minh hơn.
+
+Trong bối cảnh thị trường tài chính hiện nay, thông tin cảm xúc đóng vai trò quan trọng trong việc dự báo xu hướng thị trường và hỗ trợ ra quyết định đầu tư. Các tín hiệu cảm xúc từ bài báo, thông cáo báo chí và bài đăng trên mạng xã hội cung cấp manh mối về tâm lý nhà đầu tư cũng như phản ứng của thị trường trước các sự kiện kinh tế. Phân tích cảm xúc không chỉ giúp nhận diện xu hướng tích cực hay tiêu cực mà còn hỗ trợ đánh giá rủi ro và tối ưu hóa chiến lược đầu tư. Chẳng hạn, một làn sóng tiêu cực trên mạng xã hội có thể báo hiệu biến động giá cổ phiếu, trong khi cảm xúc tích cực từ báo cáo tài chính có thể củng cố niềm tin đầu tư. Tuy nhiên, việc khai thác dữ liệu cảm xúc gặp phải trở ngại lớn về quyền riêng tư và khan hiếm dữ liệu gán nhãn chính xác, đòi hỏi các giải pháp sáng tạo để duy trì hiệu quả và bảo mật.
+
+Việc thu thập và xử lý dữ liệu cảm xúc trong tài chính đối mặt với hai thách thức chính: quyền riêng tư và khan hiếm dữ liệu gán nhãn. Về quyền riêng tư, dữ liệu thực thường chứa thông tin nhạy cảm như chi tiết tài chính cá nhân hay lịch sử giao dịch, và việc sử dụng mà không có biện pháp bảo vệ thích hợp có thể dẫn đến rủi ro rò rỉ thông tin, gây hậu quả nghiêm trọng về tài chính và pháp lý. Bên cạnh đó, quá trình gán nhãn dữ liệu cảm xúc đòi hỏi kiến thức chuyên sâu và sự can thiệp thủ công, dẫn đến tốn kém thời gian, công sức, đồng thời dễ xảy ra sai lệch hoặc thiếu nhất quán do đánh giá chủ quan của chuyên gia. Những hạn chế này làm giảm chất lượng dữ liệu huấn luyện, ảnh hưởng đến hiệu suất của các mô hình phân tích cảm xúc và đặt ra yêu cầu cấp thiết về một giải pháp tự động, bảo mật và hiệu quả hơn.
+
+Để giải quyết các thách thức trên, phương pháp Reinforcement Prompting kết hợp mô hình ngôn ngữ lớn (LLMs) với kỹ thuật học tăng cường, mang đến một cách tiếp cận mới trong việc sinh dữ liệu tổng hợp. Thay vì phụ thuộc vào dữ liệu thực nhạy cảm, phương pháp này sử dụng Selector (chọn từ khóa tài chính phù hợp) và Executor (tạo văn bản tự nhiên) để sinh ra dữ liệu nhân tạo chất lượng cao, phản ánh chính xác ngữ cảnh và cảm xúc tài chính. Dữ liệu tổng hợp không chỉ đảm bảo quyền riêng tư bằng cách loại bỏ thông tin cá nhân mà còn giảm sự phụ thuộc vào gán nhãn thủ công, tiết kiệm chi phí và thời gian. Hơn nữa, với khả năng tối ưu hóa gợi ý qua học tăng cường, Reinforcement Prompting nâng cao tính nhất quán và độ tin cậy của dữ liệu, hỗ trợ hiệu quả cho các ứng dụng phân tích cảm xúc và dự báo xu hướng thị trường trong tài chính hiện đại.
+% \subsection{Tầm quan trọng của phân tích cảm xúc trong tài chính}
+% Phân tích cảm xúc trong tài chính đóng vai trò quan trọng trong dự báo thị trường và ra quyết định.
+
+% \subsection{Những khó khăn liên quan đến quyền riêng tư và dữ liệu gán nhãn}
+% Việc thu thập dữ liệu có nhãn chất lượng cao gặp nhiều thách thức về quyền riêng tư và chi phí.
+
+% \subsection{Giới thiệu phương pháp Reinforcement Prompting}
+% Báo cáo này giới thiệu Reinforcement Prompting như một giải pháp tiềm năng nhằm tạo dữ liệu tổng hợp mà vẫn bảo đảm tính bảo mật.
+
+
+\section{Phương Pháp}
+\subsection{Đầu vào của phương pháp}
+
+Phương pháp yêu cầu một tập hợp các thành phần đầu vào quan trọng, mỗi thành phần đóng vai trò thiết yếu trong việc định hình quá trình tạo dữ liệu tổng hợp. Các thành phần này được mô tả chi tiết như sau:
+
+Từ vựng Từ khóa chuyên biệt (Keyword Vocabulary - KV): Đây là một tập hợp các từ khóa tài chính được tuyển chọn kỹ lưỡng từ các nguồn đáng tin cậy, chẳng hạn như Bảng thuật ngữ Tài chính (Financial Terminology Glossary - FTG) và kho ngữ liệu của mô hình GPT-3.5-turbo. KV không chỉ cung cấp các thuật ngữ chuyên ngành mà còn đóng vai trò là không gian hành động (action space) cho Tác nhân Bộ chọn (Selector Agent), hỗ trợ việc xây dựng các lời nhắc (prompts) phù hợp với ngữ cảnh tài chính. Ví dụ, KV có thể bao gồm các từ như "derivatives", "liquidity", hoặc "volatility", phản ánh các khái niệm cốt lõi trong tài chính.
+
+
+Mẫu lời nhắc (Prompt Template - TPL): Đây là một cấu trúc tĩnh được thiết kế để định dạng lời nhắc, cho phép tạo ra 100 câu tài chính tổng hợp trong mỗi lần lặp dựa trên các từ khóa được chọn từ KV. TPL đảm bảo tính nhất quán về cấu trúc của lời nhắc, giúp LLM dễ dàng sinh ra dữ liệu có ý nghĩa và liên quan. Ví dụ, một TPL có thể có dạng: "Tạo 100 câu tài chính liên quan đến [từ khóa], tập trung vào [bối cảnh cụ thể]."
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{bang2.png}
+    \caption{}
+    \label{fig:label_anh}
+\end{figure}
+
+Mạng chính sách tăng cường (Reinforcement Policy Network - Tác nhân Bộ chọn): Đây là một mạng học tăng cường chịu trách nhiệm lựa chọn các từ khóa từ KV để hình thành lời nhắc. Tác nhân này được huấn luyện dựa trên các nguyên tắc RL nhằm tối ưu hóa việc chọn từ khóa, sao cho lời nhắc cuối cùng có khả năng hướng dẫn LLM tạo ra dữ liệu tổng hợp đạt chất lượng cao nhất. Quá trình huấn luyện này dựa trên việc tối đa hóa phần thưởng tích lũy, như sẽ được trình bày trong phần sau.
+
+Mô hình Ngôn ngữ Lớn (LLM Bộ thực thi - Executor LLM): Đây là một LLM, chẳng hạn như GPT-3.5-turbo, được sử dụng để tạo dữ liệu tổng hợp tài chính dựa trên lời nhắc do TPL và Tác nhân Bộ chọn cung cấp. Với khả năng xử lý ngôn ngữ tự nhiên mạnh mẽ, LLM có thể sinh ra các câu văn phức tạp, phù hợp với ngữ cảnh tài chính, từ đó đáp ứng các yêu cầu về độ chính xác và tính chuyên môn.
+
+Các thành phần này phối hợp chặt chẽ với nhau, tạo nên một quy trình liền mạch từ việc cung cấp từ khóa chuyên ngành, định dạng lời nhắc, đến thực thi và sinh ra dữ liệu tổng hợp. Sự tương tác giữa các thành phần đảm bảo rằng đầu ra cuối cùng không chỉ chất lượng cao mà còn phù hợp với các ứng dụng thực tiễn trong tài chính.
+\subsection{Đầu ra của khuôn khổ}
+
+Sau khi hoàn tất quá trình tối ưu hóa, khuôn khổ tạo ra các kết quả quan trọng sau:
+
+Chính sách tối ưu \(\pi^*\): Đây là chính sách được huấn luyện tối ưu cho Tác nhân Bộ chọn, cho phép nó lựa chọn các từ khóa hiệu quả nhất từ KV để xây dựng lời nhắc. Chính sách này phản ánh chiến lược tốt nhất mà Tác nhân học được trong quá trình huấn luyện RL.
+
+Lời nhắc hiệu quả nhất \(pmt^*\): Đây là lời nhắc tối ưu, được hình thành bằng cách kết hợp TPL với các từ khóa do Tác nhân Bộ chọn cung cấp. \(pmt^*\) đóng vai trò là hướng dẫn chính cho LLM trong việc tạo dữ liệu tổng hợp chất lượng cao, đảm bảo tính liên quan và độ chính xác của dữ liệu sinh ra.
+
+Tập dữ liệu tổng hợp \(D\): Đây là tập hợp \(D = \{d_1, d_2, \ldots, d_m\}\) bao gồm các câu tài chính tổng hợp chất lượng cao, được LLM tạo ra từ \(pmt^*\). Tập dữ liệu này có thể được sử dụng để đào tạo các mô hình ngôn ngữ bản địa hóa (localized language models) với lượng dữ liệu thực hạn chế, đồng thời duy trì tính riêng tư của thông tin nhạy cảm.
+
+Các đầu ra này không chỉ hỗ trợ quá trình đào tạo mô hình máy học mà còn góp phần giải quyết các vấn đề về quyền riêng tư dữ liệu và sự khan hiếm dữ liệu có nhãn trong lĩnh vực tài chính. Hơn nữa, tập dữ liệu \(D\) có thể được tái sử dụng hoặc mở rộng cho các nhiệm vụ khác, tăng tính thực tiễn của khuôn khổ.
+\subsection{Mục tiêu tối ưu hóa}
+Mục tiêu chính của khuôn khổ là xác định lời nhắc tối ưu \(pmt^*\) nhằm hướng dẫn LLM tạo ra dữ liệu tổng hợp tài chính chất lượng cao. Vì TPL là một cấu trúc tĩnh, \(pmt^*\) hoàn toàn phụ thuộc vào các từ khóa được Tác nhân Bộ chọn lựa chọn từ KV. Do đó, quá trình tối ưu hóa tập trung vào việc huấn luyện Tác nhân để chọn các từ khóa sao cho lời nhắc cuối cùng tối đa hóa chất lượng của dữ liệu tổng hợp, được đánh giá qua các tiêu chí như độ chính xác, sự đa dạng ngôn ngữ và tính liên quan tài chính.
+
+Để đạt được mục tiêu này, khuôn khổ áp dụng các nguyên tắc của học tăng cường, trong đó Tác nhân được huấn luyện để tối đa hóa lợi nhuận dự kiến \(J(\theta)\), được định nghĩa như sau:
+
+\[
+J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ R(\tau) \right]
+\]
+
+Trong đó:
+
+- \(\theta\): Các tham số của mạng chính sách.
+
+-\(\pi_\theta\): Chính sách được tham số hóa bởi \(\theta\), xác định xác suất lựa chọn hành động (từ khóa) dựa trên trạng thái hiện tại.
+
+- \(\tau = (s_0, a_0, s_1, a_1, \ldots, s_T, a_T)\): Quỹ đạo, đại diện cho chuỗi các trạng thái (state) và hành động (action) từ đầu đến cuối một tập huấn luyện (episode).
+
+- \(R(\tau)\): Phần thưởng tích lũy của toàn bộ quỹ đạo \(\tau\), phản ánh chất lượng tổng thể của các lựa chọn từ khóa.
+
+Để cập nhật các tham số \(\theta\), khuôn khổ sử dụng phương pháp gradient ascent (tăng dần gradient), với gradient của lợi nhuận dự kiến được tính như sau:
+
+\[
+\nabla J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi(a_t | s_t; \theta) R(\tau) \right]
+\]
+
+Trong đó:
+
+- \(\pi(a_t | s_t; \theta)\): Hàm chính sách, biểu thị xác suất chọn hành động \(a_t\) (từ khóa cụ thể) khi ở trạng thái \(s_t\) (tập hợp từ khóa đã chọn trước đó).
+
+- \(R(\tau)\): Phần thưởng tích lũy, được sử dụng để đánh giá hiệu quả của chuỗi hành động trong toàn bộ quỹ đạo.Cập nhật tham số được thực hiện theo công thức:
+
+\[
+\theta \leftarrow \theta + \alpha \nabla J(\theta)
+\]
+
+Trong đó 
+
+\(\alpha\) là learning rate, một siêu tham số điều chỉnh mức độ cập nhật của \(\theta\) trong mỗi lần lặp. Giá trị của \(\alpha\) cần được lựa chọn cẩn thận để đảm bảo sự hội tụ ổn định của mô hình.
+Quá trình tối ưu hóa này cho phép Tác nhân học cách lựa chọn các từ khóa tối ưu, từ đó tạo ra \(pmt^*\) có khả năng hướng dẫn LLM một cách hiệu quả nhất. 
+\subsection{Môi trường và hàm phần thưởng}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{model.png}
+    \caption{Mô tả ảnh}
+    \label{fig:label_anh}
+\end{figure}
+
+Môi trường: Trong khuôn khổ Nhắc nhở Tăng cường, môi trường bao gồm hai thành phần chính:- Tác nhân Bộ chọn (Selector Agent): Chịu trách nhiệm lựa chọn từ khóa từ KV để tạo lời nhắc, hoạt động như một tác nhân RL trong môi trường.- LLM Bộ thực thi (Executor LLM): Nhận lời nhắc từ Tác nhân và tạo dữ liệu tổng hợp tài chính, đóng vai trò như một phần của môi trường phản hồi kết quả dựa trên đầu vào.
+
+Sự tương tác giữa Tác nhân và LLM tạo thành một vòng lặp khép kín: Tác nhân đưa ra hành động (chọn từ khóa), môi trường (bao gồm LLM) trả về dữ liệu tổng hợp, và phần thưởng được tính toán để định hướng Tác nhân trong các bước tiếp theo.
+
+Phần thưởng tức thời \(r_t\): Tại mỗi bước thời gian \(t\), Tác nhân nhận được phần thưởng dựa trên hành động của mình:
+- Với mỗi bước \(t\) (trừ bước cuối của tập huấn luyện): Phần thưởng được tính như sau:
+  \[
+  r_t = r_t(\text{action}) - r_t(\text{penalty})
+  \]
+  Trong đó:
+  - \(r_t(\text{action})\): Lợi ích thu được từ việc thực hiện hành động (chọn một từ khóa mới), thường là một giá trị dương cố định để khuyến khích khám phá.
+  - \(r_t(\text{penalty})\): Hình phạt áp dụng nếu hành động trùng lặp với các hành động trước đó, nhằm thúc đẩy sự đa dạng trong lựa chọn từ khóa. Ví dụ, \(r_t(\text{penalty})\) có thể được đặt là một hằng số âm nếu từ khóa đã được chọn trước đó.
+- Tại bước cuối của tập huấn luyện: Phần thưởng được mở rộng để bao gồm đánh giá chất lượng dữ liệu tổng hợp:
+  \[
+  r_t = r_t(\text{action}) - r_t(\text{penalty}) + r_t(\text{data})
+  \]
+  Trong đó \(r_t(\text{data})\) là phần thưởng bổ sung dựa trên chất lượng của tập dữ liệu tổng hợp \(D_S\) do LLM tạo ra.
+
+Phần thưởng dữ liệu \(r_t(\text{data})\): Được tính dựa trên ba tiêu chí chính, phản ánh chất lượng của dữ liệu tổng hợp:
+
+\[
+r_t(\text{data}) = v_1 \times \text{STY}(D_S, D_R) + v_2 \times \text{ACR}(D_S, \text{BERT}(D_R)) + v_3 \times \text{LXC}(D_S, \text{FTG})
+\]
+
+Trong đó:
+- \(\text{STY}(D_S, D_R)\): Đo lường sự tương đồng về phong cách giữa dữ liệu tổng hợp \(D_S\) và dữ liệu thực \(D_R\), đảm bảo rằng dữ liệu tổng hợp phản ánh ngôn ngữ tài chính thực tế. Chỉ số này có thể được tính bằng các phương pháp như khoảng cách cosine giữa các vector biểu diễn văn bản.
+- \(\text{ACR}(D_S, \text{BERT}(D_R))\): Đo lường độ chính xác của mô hình BERT (được huấn luyện trên \(D_R\)) khi dự đoán cảm xúc trên \(D_S\), đánh giá giá trị thực tiễn của dữ liệu tổng hợp trong các tác vụ phân tích cảm xúc.
+- \(\text{LXC}(D_S, \text{FTG})\): Đo lường sự đa dạng ngôn ngữ và mức độ liên quan của \(D_S\) với Bảng thuật ngữ Tài chính (FTG), đảm bảo tính chuyên môn và phong phú của dữ liệu.
+- \(v_1, v_2, v_3\): Các trọng số điều chỉnh mức độ quan trọng của từng tiêu chí, với ràng buộc \(v_1 + v_2 + v_3 = 1\). Các giá trị này có thể được tinh chỉnh thông qua thử nghiệm để đạt hiệu quả tối ưu.
+
+Phần thưởng tích lũy \(R(\tau)\): Được tính là tổng các phần thưởng tức thời có chiết khấu qua toàn bộ quỹ đạo:
+
+\[
+R(\tau) = r_1 + \gamma r_2 + \cdots + \gamma^{T-1} r_T
+\]
+
+Trong đó:
+- \(T\): Tổng số bước thời gian trong một tập huấn luyện.
+- \(\gamma\): Hệ số chiết khấu (\(0 \leq \gamma \leq 1\)), điều chỉnh mức độ ưu tiên của các phần thưởng tương lai so với phần thưởng hiện tại. Giá trị \(\gamma\) gần 1 sẽ ưu tiên phần thưởng dài hạn, trong khi \(\gamma\) gần 0 tập trung vào phần thưởng tức thời.
+
+Hàm phần thưởng này được thiết kế để định hướng Tác nhân không chỉ trong việc lựa chọn từ khóa tối ưu mà còn đảm bảo rằng dữ liệu tổng hợp cuối cùng đáp ứng các tiêu chuẩn chất lượng cao, bao gồm tính tương đồng với dữ liệu thực, độ chính xác trong dự đoán cảm xúc, và tính chuyên môn trong lĩnh vực tài chính. Để tăng tính hiệu quả, hàm phần thưởng có thể được mở rộng bằng cách tích hợp thêm các chỉ số phụ, chẳng hạn như độ dài trung bình của câu hoặc mức độ sử dụng các cấu trúc ngữ pháp phức tạp.
+\subsection{Đánh giá chất lượng dữ liệu tổng hợp}
+Chất lượng của dữ liệu tổng hợp \( D_S \) được đánh giá bằng cách so sánh với dữ liệu thực \( D_R \) và FTG, sử dụng ba số liệu chính:
+- STY (Stylistic Similarity): Đo lường sự tương đồng về phong cách giữa \( D_S \) và \( D_R \).
+- ACR (Accuracy of Local Model): Đánh giá hiệu suất thực tiễn của \( D_S \) thông qua độ chính xác của mô hình phân loại cảm xúc.
+- LXC (Lexical Diversity and Financial Relevance)**: Đo mức độ đa dạng ngôn ngữ và tính liên quan tài chính của \( D_S \).
+
+Các số liệu này cung cấp cơ sở định lượng để đánh giá hiệu quả của phương pháp và đảm bảo \( D_S \) đáp ứng các tiêu chuẩn chất lượng cần thiết.
+
+---
+
+Các số liệu đánh giá chi tiết
+
+Phần này trình bày chi tiết ba số liệu đánh giá chính (**STY**, **ACR**, **LXC**) được sử dụng để đánh giá chất lượng của dữ liệu tổng hợp \( D_S \). Mỗi số liệu tập trung vào một khía cạnh cụ thể, từ phong cách ngôn ngữ, hiệu suất thực tiễn, đến tính chuyên môn tài chính.
+
+\subsubsection{Số liệu STY (Stylistic Similarity)}. 
+
+Mục đích: Số liệu STY đo lường mức độ tương đồng về phong cách giữa dữ liệu tổng hợp \( D_S \) và dữ liệu thực \( D_R \), đảm bảo \( D_S \) phản ánh đúng đặc điểm ngôn ngữ của các văn bản tài chính thực tế.
+
+Thành phần:
+- STY₁: Độ tương đồng phân phối cảm xúc: Sử dụng khoảng cách Jensen-Shannon (JSD) để đo sự khác biệt giữa phân phối cảm xúc của \( D_S \) và \( D_R \).
+  \[
+  \text{STY}_1 = 1 - \text{JSD}(P \, || \, Q)
+  \]
+  Trong đó:
+  - \( P \): Phân phối cảm xúc của \( D_S \) (tỷ lệ câu tích cực, tiêu cực, trung lập).
+  - \( Q \): Phân phối cảm xúc của \( D_R \).
+  - \( \text{JSD}(P \, || \, Q) = \frac{1}{2} D(P \, || \, M) + \frac{1}{2} D(Q \, || \, M) \), với \( M = \frac{1}{2}(P + Q) \) và \( D \) là khoảng cách Kullback-Leibler.
+- STY₂: Tỷ lệ từ duy nhất**: Đo mức độ trùng lặp từ vựng giữa \( D_S \) và \( D_R \).
+  \[
+  \text{STY}_2 = \frac{N(S \cap R)}{N(D_R)}
+  \]
+  Trong đó:
+  - \( N(S \cap R) \): Số từ trong \( D_S \) cũng xuất hiện trong \( D_R \).
+  - \( N(D_R) \): Tổng số từ trong \( D_R \).
+
+Tổng hợp:
+\[
+\text{STY} = w_1 \times \text{STY}_1 + w_2 \times \text{STY}_2
+\]
+với \( w_1 + w_2 = 1 \). Các trọng số \( w_1 \) và \( w_2 \) có thể được điều chỉnh để cân bằng giữa phân phối cảm xúc và sự tương đồng từ vựng.
+
+\subsubsection{Số liệu ACR (Accuracy of Local Model)} 
+
+Mục đích: Số liệu ACR đánh giá chất lượng của \( D_S \) thông qua độ chính xác của mô hình BERT được huấn luyện trên \( D_R \) khi dự đoán cảm xúc trên \( D_S \), phản ánh giá trị thực tiễn của dữ liệu tổng hợp.
+
+Cách tính:
+\[
+\text{ACR} = \frac{N_{\text{correct}}(D_S)}{N_{\text{total}}(D_S)}
+\]
+Trong đó:
+- \( N_{\text{correct}}(D_S) \): Số câu trong \( D_S \) được BERT (huấn luyện trên \( D_R \)) dự đoán đúng.
+- \( N_{\text{total}}(D_S) \): Tổng số câu trong \( D_S \).
+
+Một giá trị ACR cao cho thấy \( D_S \) có thể thay thế \( D_R \) trong các tác vụ phân tích cảm xúc, khẳng định tính hữu ích của dữ liệu tổng hợp.
+\subsubsection{Số liệu LXC (Lexical Diversity and Financial Relevance)
+}
+Mục đích: Số liệu LXC đo lường sự đa dạng ngôn ngữ và mức độ liên quan của \( D_S \) đến lĩnh vực tài chính thông qua việc sử dụng các thuật ngữ từ FTG.
+
+Thành phần:
+- LXC₁: Đa dạng từ vựng: Đo mức độ phong phú của từ vựng trong \( D_S \).
+  \[
+  \text{LXC}_1 = \frac{N_{\text{unique}}(D_S)}{N_{\text{total}}(D_S)}
+  \]
+  Trong đó:
+  - \( N_{\text{unique}}(D_S) \): Số từ duy nhất trong \( D_S \).
+  - \( N_{\text{total}}(D_S) \): Tổng số từ trong \( D_S \).
+- LXC₂: Tỷ lệ thuật ngữ FTG**: Đo mức độ sử dụng thuật ngữ tài chính chuyên ngành trong \( D_S \).
+  \[
+  \text{LXC}_2 = \frac{N_{\text{FTG}}(D_S)}{N_{\text{total}}(D_S)}
+  \]
+  Trong đó:
+  - \( N_{\text{FTG}}(D_S) \): Số từ trong \( D_S \) thuộc FTG.
+
+Tổng hợp:
+\[
+\text{LXC} = u_1 \times \text{LXC}_1 + u_2 \times \text{LXC}_2
+\]
+với \( u_1 + u_2 = 1 \). Các trọng số \( u_1 \) và \( u_2 \) có thể được điều chỉnh để cân bằng giữa đa dạng ngôn ngữ và tính chuyên môn.
+
+\section{Kết Quả}
+\subsection{Phân tích trên Tập dữ liệu Tài chính Twitter} 
+
+\indent  Chúng tôi đánh giá hiệu suất của các mô hình BERT-Syn và BERT-Real trên Tập dữ liệu Tài chính Twitter, một tập dữ liệu được cắt giảm còn 5.064 điểm dữ liệu từ 11.882 mẫu để duy trì phân bố cân bằng giữa các cảm xúc tích cực, tiêu cực và trung lập. Các chỉ số đánh giá bao gồm độ chính xác, precision và recall, với kích thước mẫu huấn luyện dao động từ 1.000 đến 1.812. Phân tích này nhằm kiểm tra khả năng của dữ liệu tổng hợp và dữ liệu thực trong việc hỗ trợ phân tích cảm xúc tài chính trên mạng xã hội.
+
+\subsubsection{Kết quả Độ chính xác} 
+
+Kết quả độ chính xác tổng thể được trình bày trong Bảng 8. BERT-Syn liên tục vượt trội hơn BERT-Real trên nhiều kích thước mẫu huấn luyện. Cụ thể, BERT-Syn đạt độ chính xác cao nhất là 0.67 với 1.500 điểm dữ liệu, trong khi BERT-Real đạt 0.64 với 1.600 điểm dữ liệu. Hiệu suất của BERT-Syn ổn định hơn, dao động từ 0.59 đến 0.67, trong khi BERT-Real có biến thiên lớn hơn, từ 0.53 đến 0.64.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{8}
+    \centering
+    \caption{So sánh độ chính xác phân tích cảm xúc: BERT-Syn so với BERT-Real trên Tập dữ liệu Tài chính Twitter cân bằng gồm 5.064 điểm dữ liệu.}
+    \label{tab:accuracy_twitter}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Độ chính xác & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn  & 0.65 & 0.64 & 0.59 & 0.66 & 0.66 & 0.67 & 0.63 & 0.65 & 0.64 \\
+        BERT-Real & 0.56 & 0.57 & 0.53 & 0.56 & 0.55 & 0.53 & 0.64 & 0.53 & 0.57 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{ Kết quả Precision và Recall}
+
+Bảng 9 và Bảng 10 cung cấp chi tiết về precision và recall cho từng loại cảm xúc. Về precision, BERT-Syn vượt trội hơn trong việc xác định cảm xúc “Tiêu cực”, đạt tối đa 0.87 với 1.400 điểm dữ liệu, trong khi cả hai mô hình có hiệu suất tương đương với cảm xúc “Tích cực”. Đối với cảm xúc “Trung lập”, precision của cả hai mô hình đều thấp, nhưng BERT-Syn nhỉnh hơn một chút. Về recall, BERT-Real cho thấy khả năng nhạy hơn với cảm xúc “Trung lập”, đạt đỉnh 0.91 với 1.500 điểm dữ liệu, trong khi BERT-Syn duy trì hiệu suất ổn định hơn với cảm xúc “Tích cực” và “Tiêu cực”.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{9}
+    \centering
+    \caption{Precision của các cảm xúc khác nhau trên Tập dữ liệu Tài chính Twitter.}
+    \label{tab:precision_twitter}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Precision & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn “Tích cực”  & 0.69 & 0.69 & 0.81 & 0.57 & 0.69 & 0.62 & 0.83 & 0.68 & 0.56 \\
+        BERT-Real “Tích cực” & 0.69 & 0.76 & 0.63 & 0.65 & 0.48 & 0.76 & 0.73 & 0.59 & 0.72 \\
+        BERT-Syn “Tiêu cực”  & 0.78 & 0.83 & 0.86 & 0.74 & 0.87 & 0.81 & 0.85 & 0.83 & 0.83 \\
+        BERT-Real “Tiêu cực” & 0.80 & 0.79 & 0.86 & 0.78 & 0.81 & 0.84 & 0.73 & 0.86 & 0.78 \\
+        BERT-Syn “Trung lập” & 0.54 & 0.53 & 0.46 & 0.78 & 0.55 & 0.64 & 0.49 & 0.54 & 0.64 \\
+        BERT-Real “Trung lập” & 0.45 & 0.45 & 0.43 & 0.45 & 0.52 & 0.42 & 0.52 & 0.44 & 0.45 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[h]
+    \renewcommand{\thetable}{10}
+    \centering
+    \caption{Recall của các cảm xúc khác nhau trên Tập dữ liệu Tài chính Twitter.}
+    \label{tab:recall_twitter}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Recall & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn “Tích cực”  & 0.64 & 0.65 & 0.45 & 0.88 & 0.67 & 0.77 & 0.46 & 0.63 & 0.78 \\
+        BERT-Real “Tích cực” & 0.46 & 0.45 & 0.48 & 0.41 & 0.68 & 0.30 & 0.51 & 0.55 & 0.41 \\
+        BERT-Syn “Tiêu cực”  & 0.59 & 0.46 & 0.40 & 0.66 & 0.50 & 0.59 & 0.52 & 0.52 & 0.51 \\
+        BERT-Real “Tiêu cực” & 0.36 & 0.40 & 0.31 & 0.47 & 0.41 & 0.39 & 0.68 & 0.30 & 0.47 \\
+        BERT-Syn “Trung lập” & 0.72 & 0.80 & 0.91 & 0.44 & 0.81 & 0.67 & 0.90 & 0.79 & 0.65 \\
+        BERT-Real “Trung lập” & 0.85 & 0.86 & 0.81 & 0.80 & 0.57 & 0.91 & 0.72 & 0.74 & 0.82 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+\subsection{Nhận xét} 
+
+BERT-Syn cho thấy hiệu suất vượt trội hơn BERT-Real trên Tập dữ liệu Tài chính Twitter, đặc biệt trong việc xác định cảm xúc “Tiêu cực”. Điều này có thể xuất phát từ tính nhất quán của dữ liệu tổng hợp trong việc cung cấp tín hiệu huấn luyện. Tuy nhiên, BERT-Real nhạy hơn với cảm xúc “Trung lập”, có thể do dữ liệu thực phản ánh tốt hơn các sắc thái trung lập trong văn bản Twitter. Sự khác biệt này nhấn mạnh rằng dữ liệu tổng hợp có thể phù hợp hơn trong các tình huống cần độ chính xác cao cho cảm xúc mạnh, trong khi dữ liệu thực giữ lợi thế trong việc phát hiện cảm xúc trung lập.
+
+---
+
+\subsection{Phân tích trên Tập dữ liệu Tài chính Fin-news} 
+
+Chúng tôi mở rộng phân tích sang Tập dữ liệu Tài chính Fin-news, bao gồm 2.103 điểm dữ liệu từ 8.675 mẫu, với phân bố cân bằng giữa ba lớp cảm xúc. Các chỉ số đánh giá tương tự được áp dụng, và kết quả được trình bày trong **Bảng 11**, **Bảng 12**, và **Bảng 13**.
+
+\subsection{Kết quả Độ chính xác} 
+
+Bảng 11 cho thấy BERT-Real vượt trội hơn BERT-Syn trên các kích thước mẫu huấn luyện lớn hơn (1.500, 1.600, 1.812), đạt độ chính xác cao nhất là 0.90, trong khi BERT-Syn đạt đỉnh 0.84 với 1.300 điểm dữ liệu. Điều này trái ngược với xu hướng trên Tập dữ liệu Tài chính Twitter.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{11} % Đặt số bảng thành 11
+    \centering
+    \caption{So sánh độ chính xác phân tích cảm xúc trên Tập dữ liệu Tài chính Fin-news cân bằng gồm 2.103 điểm dữ liệu.}
+    \label{tab:accuracy_comparison}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Độ chính xác & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn  & 0.82 & 0.64 & 0.57 & 0.84 & 0.73 & 0.78 & 0.79 & 0.75 & 0.74 \\
+        BERT-Real & 0.72 & 0.72 & 0.70 & 0.75 & 0.81 & 0.86 & 0.90 & 0.60 & 0.90 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+
+\subsubsection{ Kết quả Precision và Recall}
+
+Bảng 12 và Bảng 13 trình bày precision và recall. BERT-Real cho thấy precision và recall cao hơn đối với cảm xúc “Tiêu cực” và “Trung lập” ở các kích thước mẫu lớn, trong khi BERT-Syn hoạt động tốt hơn ở kích thước trung bình (1.300-1.500). Đối với cảm xúc “Tích cực”, cả hai mô hình cạnh tranh nhau, nhưng BERT-Real có xu hướng vượt trội khi mẫu huấn luyện tăng.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{12}
+    \centering
+    \caption{Precision của các cảm xúc khác nhau trên Tập dữ liệu Tài chính Fin-news.}
+    \label{tab:precision_fin_news}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Precision & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn “Tích cực”  & 0.80 & 0.90 & 0.90 & 0.74 & 0.90 & 0.91 & 0.93 & 0.84 & 0.63 \\
+        BERT-Real “Tích cực” & 0.91 & 0.91 & 0.61 & 0.60 & 0.67 & 0.96 & 0.91 & 0.50 & 0.92 \\
+        BERT-Syn “Tiêu cực”  & 0.92 & 0.98 & 0.94 & 0.92 & 0.97 & 0.95 & 0.96 & 0.97 & 0.98 \\
+        BERT-Real “Tiêu cực” & 0.98 & 0.96 & 0.98 & 0.97 & 0.99 & 0.98 & 0.95 & 1.00 & 0.95 \\
+        BERT-Syn “Trung lập” & 0.76 & 0.48 & 0.44 & 0.91 & 0.57 & 0.63 & 0.63 & 0.60 & 0.76 \\
+        BERT-Real “Trung lập”& 0.56 & 0.55 & 0.63 & 0.78 & 0.88 & 0.72 & 0.86 & 0.66 & 0.84 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[h]
+    \renewcommand{\thetable}{13}
+    \centering
+    \caption{Recall của các cảm xúc khác nhau trên Tập dữ liệu Tài chính Fin-news.}
+    \label{tab:recall_fin_news}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Recall & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn “Tích cực”  & 0.84 & 0.51 & 0.50 & 0.93 & 0.58 & 0.60 & 0.64 & 0.78 & 0.91 \\
+        BERT-Real “Tích cực” & 0.64 & 0.73 & 0.88 & 0.90 & 0.95 & 0.78 & 0.86 & 0.94 & 0.85 \\
+        BERT-Syn “Tiêu cực”  & 0.83 & 0.45 & 0.27 & 0.94 & 0.67 & 0.79 & 0.77 & 0.58 & 0.61 \\
+        BERT-Real “Tiêu cực” & 0.59 & 0.47 & 0.67 & 0.87 & 0.85 & 0.82 & 0.96 & 0.42 & 0.95 \\
+        BERT-Syn “Trung lập” & 0.80 & 0.96 & 0.95 & 0.67 & 0.95 & 0.94 & 0.95 & 0.88 & 0.70 \\
+        BERT-Real “Trung lập”& 0.94 & 0.94 & 0.55 & 0.47 & 0.64 & 0.98 & 0.90 & 0.46 & 0.92 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Nhận xét} 
+
+BERT-Real thể hiện hiệu suất tốt hơn trên Tập dữ liệu Tài chính Fin-news, đặc biệt với các tập huấn luyện lớn, có thể do sự tương đồng về cấu trúc và phân bố giữa Financial Phrasebank và Fin-news. Ngược lại, Tập dữ liệu Tài chính Twitter, với các tweet ngắn và ngôn ngữ không chính thức, đặt ra thách thức lớn hơn cho cả hai mô hình, nhưng BERT-Syn lại thích nghi tốt hơn nhờ tín hiệu huấn luyện nhất quán từ dữ liệu tổng hợp.
+
+---
+
+\subsection{Phân tích về Độ biến thiên} 
+Chúng tôi nhận thấy độ biến thiên lớn trong kết quả độ chính xác trên cả hai tập dữ liệu, đặc biệt với kích thước mẫu nhỏ. Ví dụ, trong Bảng 8, độ chính xác của BERT-Real dao động từ 0.53 đến 0.64.
+
+\subsubsection{Kết quả từ Nhiều lần chạy
+} 
+Để điều tra, chúng tôi lặp lại thí nghiệm và trình bày kết quả từ ba lần chạy trong Bảng 14, cho thấy độ biến thiên xuất hiện ở cả BERT-Syn và BERT-Real.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{14}
+    \centering
+    \caption{Kết quả độ chính xác từ nhiều lần chạy trên Tập dữ liệu Tài chính Twitter.}
+    \label{tab:accuracy_twitter}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Độ chính xác & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn Lần 1  & 0.65 & 0.64 & 0.59 & 0.66 & 0.66 & 0.67 & 0.63 & 0.65 & 0.64 \\
+        BERT-Syn Lần 2  & 0.66 & 0.64 & 0.61 & 0.67 & 0.59 & 0.68 & 0.64 & 0.66 & 0.65 \\
+        BERT-Syn Lần 3  & 0.64 & 0.67 & 0.58 & 0.69 & 0.65 & 0.66 & 0.62 & 0.64 & 0.63 \\
+        BERT-Real Lần 1 & 0.56 & 0.57 & 0.53 & 0.56 & 0.55 & 0.53 & 0.64 & 0.53 & 0.57 \\
+        BERT-Real Lần 2 & 0.63 & 0.56 & 0.56 & 0.59 & 0.67 & 0.57 & 0.63 & 0.64 & 0.68 \\
+        BERT-Real Lần 3 & 0.58 & 0.62 & 0.59 & 0.57 & 0.54 & 0.69 & 0.52 & 0.67 & 0.55 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+Chúng tôi lấy trung bình kết quả từ 30 lần chạy để giảm thiểu biến thiên, như trong Bảng 15, cho thấy hiệu suất của BERT-Syn và BERT-Real gần khớp nhau.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{15}
+    \centering
+    \caption{So sánh độ chính xác trung bình trên Tập dữ liệu Tài chính Twitter.}
+    \label{tab:avg_accuracy_twitter}
+    \begin{tabular}{lccccccccc}
+        \hline
+        Độ chính xác & 1000 & 1100 & 1200 & 1300 & 1400 & 1500 & 1600 & 1700 & 1812 \\
+        \hline
+        BERT-Syn  & 0.66 & 0.65 & 0.60 & 0.64 & 0.66 & 0.68 & 0.66 & 0.67 & 0.67 \\
+        BERT-Real & 0.57 & 0.61 & 0.58 & 0.59 & 0.61 & 0.59 & 0.62 & 0.60 & 0.61 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsubsection{Nhận xét} 
+
+Độ biến thiên chủ yếu do kích thước mẫu huấn luyện nhỏ, ảnh hưởng đến cả dữ liệu tổng hợp và thực. Việc lấy trung bình qua nhiều lần chạy giúp đánh giá hiệu suất đáng tin cậy hơn, xác nhận chất lượng cao của dữ liệu tổng hợp.
+
+---
+
+\subsection{ Nghiên cứu tình huống: Đánh giá bởi con người}
+
+\subsubsection{Thiết lập Đánh giá}
+
+Chúng tôi so sánh 1.000 câu từ dữ liệu tổng hợp và Financial Phrasebank, được ba chuyên gia tài chính đánh giá dựa trên tính mạch lạc ngữ nghĩa và mức độ liên quan đến lĩnh vực, trên thang điểm 1-5.
+
+\subsubsection{Kết quả
+} 
+Bảng 16 cho thấy dữ liệu tổng hợp gần khớp với dữ liệu thực về chất lượng.
+
+\begin{table}[h]
+    \renewcommand{\thetable}{16}
+    \centering
+    \caption{Sự đồng thuận của người đánh giá trên tập dữ liệu thực và tổng hợp.}
+    \label{tab:agreement_human}
+    \begin{tabular}{lcc}
+        \hline
+        Tiêu chí & Dữ liệu Tổng hợp & Dữ liệu Thực \\
+        \hline
+        Tính mạch lạc ngữ nghĩa       & 4.3 & 4.5 \\
+        Mức độ liên quan đến lĩnh vực  & 4.1 & 4.2 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{Nhận xét} 
+
+Đánh giá bởi con người xác nhận rằng dữ liệu tổng hợp có chất lượng tương đương dữ liệu thực, khẳng định độ tin cậy của nó trong phân tích cảm xúc tài chính.
+\subsection{Dữ liệu Tổng hợp so với Dữ liệu Thực: Tóm tắt So sánh}
+
+\subsubsection{Lợi thế của Dữ liệu Tổng hợp} 
+- Tính nhất quán: Hiệu suất ổn định hơn, ít biến động.
+- Tính linh hoạt: Cho phép thử nghiệm với mẫu cân bằng khi dữ liệu thực khan hiếm.
+- Hiệu quả chi phí: Kinh tế hơn so với thu thập dữ liệu thực.
+
+\subsubsection{Lợi thế của Dữ liệu Thực} 
+- Tính xác thực: Phản ánh thực tế, phù hợp với các sự kiện thực.
+- Sự đa dạng: Bao gồm các biến thiên và trường hợp hiếm gặp.
+- Tuân thủ và Niềm tin: Đáp ứng tiêu chuẩn quy định và được tin cậy hơn.
+
+\subsubsection{Kết luận} 
+
+Một cách tiếp cận kết hợp dữ liệu tổng hợp và thực có thể tận dụng ưu điểm của cả hai, nâng cao hiệu suất và tính linh hoạt của mô hình trong phân tích cảm xúc tài chính.
+\section{Thảo Luận}
+\subsection{Phân tích điểm mạnh và hạn chế của phương pháp}
+Phương pháp Reinforcement Prompting mang lại nhiều lợi thế quan trọng trong bối cảnh phân tích cảm xúc tài chính, đặc biệt là khả năng tiết kiệm dữ liệu thực và bảo vệ quyền riêng tư. Một trong những thách thức lớn trong việc ứng dụng mô hình học máy vào lĩnh vực tài chính là sự khan hiếm của dữ liệu được gán nhãn cũng như các rủi ro liên quan đến bảo mật thông tin. Việc sử dụng dữ liệu tổng hợp do mô hình sinh ra giúp giảm thiểu sự phụ thuộc vào dữ liệu thực, qua đó hạn chế nguy cơ rò rỉ thông tin nhạy cảm. Hơn nữa, cách tiếp cận này còn tạo điều kiện để mô hình ngôn ngữ lớn (LLM) học hỏi từ nhiều tình huống khác nhau, đảm bảo sự đa dạng và phong phú của dữ liệu đầu vào cho các bài toán phân tích tài chính.
+
+Tuy nhiên, phương pháp vẫn tồn tại một số hạn chế, đáng chú ý nhất là vấn đề đảm bảo chất lượng dữ liệu tổng hợp. Mặc dù hệ thống sử dụng hàm phần thưởng để hướng dẫn việc tối ưu hóa prompt, nhưng vẫn có nguy cơ dữ liệu được sinh ra không hoàn toàn phù hợp với thực tế, đặc biệt là trong những trường hợp có sự khác biệt lớn giữa dữ liệu tổng hợp và dữ liệu thực tế trên thị trường tài chính. Ngoài ra, việc đánh giá chất lượng của dữ liệu tổng hợp vẫn chủ yếu dựa trên các chỉ số thống kê, trong khi những yếu tố ngữ nghĩa sâu hơn hoặc ngữ cảnh tài chính phức tạp có thể không được phản ánh đầy đủ. Do đó, cần có các cơ chế đánh giá chặt chẽ hơn để đảm bảo rằng dữ liệu tổng hợp có thể sử dụng hiệu quả trong các bài toán thực tiễn.
+
+\subsection{Ý nghĩa thực tiễn và hướng phát triển trong tương lai}
+Reinforcement Prompting mở ra một hướng đi mới trong việc tối ưu hóa mô hình ngôn ngữ phục vụ phân tích tài chính. Bằng cách tự động hóa quá trình tạo dữ liệu tổng hợp, phương pháp này giúp giảm sự phụ thuộc vào dữ liệu thực và giảm thiểu chi phí thu thập, xử lý dữ liệu. Điều này có ý nghĩa quan trọng đối với các tổ chức tài chính, nơi dữ liệu có thể chứa thông tin nhạy cảm và không thể chia sẻ công khai. Ngoài ra, phương pháp này còn có thể áp dụng trong các lĩnh vực khác như đánh giá rủi ro tín dụng, dự báo thị trường và quản lý danh mục đầu tư, nơi việc thu thập dữ liệu thực tế gặp nhiều khó khăn.
+
+Trong tương lai, có hai hướng phát triển quan trọng nhằm cải thiện phương pháp này:
+
+Cải thiện hàm phần thưởng: Hiện tại, việc đánh giá chất lượng dữ liệu tổng hợp chủ yếu dựa trên các tiêu chí thống kê và độ tương đồng với dữ liệu thực. Một hướng phát triển là thiết kế các hàm phần thưởng tinh vi hơn, kết hợp đánh giá ngữ nghĩa sâu hơn hoặc tích hợp phản hồi từ các chuyên gia tài chính để điều chỉnh quá trình huấn luyện.
+
+Nâng cao khả năng thích ứng của mô hình ngôn ngữ: Hiện tại, mô hình ngôn ngữ có thể gặp khó khăn khi phải tạo dữ liệu tổng hợp cho các tình huống đặc biệt hoặc lĩnh vực tài chính cụ thể. Do đó, một hướng nghiên cứu tiềm năng là phát triển các kỹ thuật fine-tuning hiệu quả hơn để giúp mô hình thích nghi tốt hơn với các ngữ cảnh tài chính đa dạng.
+
+Bằng cách kết hợp hai hướng cải tiến trên, Reinforcement Prompting có thể trở thành một công cụ mạnh mẽ hơn trong việc sinh dữ liệu tổng hợp chất lượng cao, đáp ứng tốt hơn nhu cầu của ngành tài chính.
+\section{Kết Luận}
+\subsection{Tổng hợp các đóng góp chính của nghiên cứu}
+Báo cáo này đã trình bày một cách tiếp cận mới, Reinforcement Prompting, nhằm giải quyết các thách thức liên quan đến dữ liệu trong phân tích cảm xúc tài chính. Cách tiếp cận này sử dụng mô hình học tăng cường để tối ưu hóa quá trình lựa chọn prompt, từ đó giúp mô hình ngôn ngữ lớn sinh ra dữ liệu tổng hợp có độ chính xác cao hơn. So với các phương pháp truyền thống, Reinforcement Prompting mang lại lợi thế đáng kể trong việc bảo vệ quyền riêng tư, giảm sự phụ thuộc vào dữ liệu thực và tạo ra dữ liệu linh hoạt hơn để huấn luyện mô hình.
+
+Các thí nghiệm thực nghiệm cho thấy dữ liệu tổng hợp được tạo ra bằng phương pháp này có thể đạt hiệu suất tương đương dữ liệu thực trong bài toán phân tích cảm xúc. Điều này chứng minh rằng Reinforcement Prompting không chỉ giúp giải quyết bài toán khan hiếm dữ liệu mà còn có tiềm năng ứng dụng rộng rãi trong các bài toán liên quan đến tài chính và kinh doanh.
+\subsection{Vai trò của phương pháp trong bối cảnh tài chính hiện đại}
+Trong bối cảnh tài chính hiện đại, dữ liệu đóng vai trò quan trọng trong việc xây dựng các mô hình dự báo và phân tích thị trường. Tuy nhiên, các rào cản về quyền riêng tư, tính bảo mật và chi phí thu thập dữ liệu thực tế khiến việc sử dụng dữ liệu trở thành một thách thức. Phương pháp Reinforcement Prompting mang lại giải pháp tiềm năng khi có thể tạo ra dữ liệu tổng hợp có chất lượng cao, đáp ứng nhu cầu huấn luyện mô hình mà không làm lộ thông tin nhạy cảm.
+
+Bên cạnh đó, với sự phát triển nhanh chóng của các mô hình ngôn ngữ lớn và các ứng dụng AI trong tài chính, việc tối ưu hóa cách mô hình học từ dữ liệu tổng hợp sẽ ngày càng trở nên quan trọng. Reinforcement Prompting có thể đóng vai trò như một công cụ hỗ trợ hữu ích trong nhiều lĩnh vực, từ phân tích cảm xúc thị trường, đánh giá rủi ro tín dụng, đến dự báo xu hướng tài chính. Sự kết hợp giữa học tăng cường và mô hình ngôn ngữ mở ra nhiều cơ hội nghiên cứu và ứng dụng mới, góp phần nâng cao hiệu quả của các hệ thống AI trong ngành tài chính.
+
+Tóm lại, Reinforcement Prompting không chỉ cung cấp một giải pháp khả thi để tạo dữ liệu tổng hợp mà còn mang lại tiềm năng lớn trong các ứng dụng tài chính hiện đại, giúp các tổ chức tài chính khai thác sức mạnh của AI một cách hiệu quả và an toàn hơn.
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{1}
+
+\bibitem{Alzubi2022}
+O. Alzubi, ``Financial sentiment analysis based on transformers and majority voting,'' in \emph{Proc. 2022 IEEE/ACS 19th Int. Conf. Comput. Syst. Appl. (AICCSA)}, 2022, pp. 1--6, doi: 10.1109/AICCSA56895.2022.10017843.
+
+\bibitem{An2021}
+A. An, E. Turk, and S. Adali, ``Sentiment analysis with pre-trained language models,'' in \emph{Proc. 2021 Third Int. Conf. Inventive Res. Comput. Appl. (ICIRCA)}, 2021, pp. 1063--1068, doi: 10.1109/ICIRCA51532.2021.9544940.
+
+\bibitem{Brown2021}
+T. Brown \emph{et al.}, ``Language models are few-shot learners,'' \emph{arXiv preprint arXiv:2005.14165}, 2020.
+
+\bibitem{Bryant2019}
+R. Bryant, C. Cintas, L. Wambugu, A. Kina, and K. Weldemariam, ``Analyzing bias in sensitive personal information used to train financial models,'' \emph{arXiv preprint arXiv:1911.03623}, 2019.
+
+\bibitem{Deng2022}
+X. Deng, V. Bashlovkina, F. Han, S. Baumgartner, and M. Bendersky, ``What do LLMs know about financial markets? A case study on Reddit market sentiment analysis,'' \emph{arXiv preprint arXiv:2212.09457}, 2022.
+
+\bibitem{Derby2023}
+S. Derby, T. Miller, and E. De Luca, ``Towards understanding the character of language models,'' in \emph{Proc. 2023 Conf. North Amer. Chapter Assoc. Comput. Linguistics: Human Lang. Technol., Vol. 1 (Long and Short Papers)}, 2023, pp. 1063--1065, doi: 10.18653/v1/N19-1423.
+
+\bibitem{Doganis2021}
+P. Doganis, I. Padhi, I. Melnyk, and P. Das, ``Reinforcement learning for text and knowledge base generation using pretrained language models,'' \emph{arXiv preprint arXiv:2108.10640}, 2021.
+
+\bibitem{Dvorak2006}
+K. Dvorak, ``Differential privacy,'' \emph{arXiv preprint arXiv:1607.0640}, 2006.
+
+\bibitem{Efimov2020}
+V. Efimov, V. Shalamov, and A. Filchenkov, ``Synthetic data generation for text recognition with generative adversarial networks,'' \emph{arXiv preprint arXiv:2003.08462}, 2020.
+
+\bibitem{Ghosh2020}
+S. Ghosh, A. Manasov, S. Swamy, K. Roy, D. Bhardwaj, and D. Downey, ``Extracting and adapting language models to domains and tasks,'' \emph{arXiv preprint arXiv:2005.06634}, 2020.
+
+\bibitem{Hoffman2022}
+J. Hoffman, S. Borgaud, A. Mensch, E. Buchatskaya, T. Cai, E. Rutherford, and D. L. Dill, ``Training compute-optimal large language model,'' \emph{arXiv preprint arXiv:2203.15556}, 2022.
+
+\bibitem{Huang2022}
+Y. Huang, Y. Wang, Y. Tang, J. Shen, and G. Yang, ``FinBERT: A large language model for extracting information from financial text,'' \emph{Contemporary Accounting Research}, vol. 40, 2022, arXiv preprint arXiv:2203.15556.
+
+\bibitem{Ji2022}
+Y. Ji, Z. Zhou, Z. Teng, Y. Shen, and G. Yang, ``Detecting such out-uses via dense subgraphs,'' in \emph{Proc. 28th ACM SIGKDD Conf. Knowl. Discovery Data Mining}, 2022, doi: 10.1145/3534678.3539252.
+
+\bibitem{Lu2023}
+D. Lu, H. Wu, X. Jiang, Y. Ye, O. Geng, Y. Han, and M. Xin, ``BTH: Fin-comprehensive construction of Chinese financial domain pre-trained language model,'' \emph{arXiv preprint arXiv:2302.09432}, 2023.
+
+\bibitem{Lu2020}
+Y. Lu, X. Huang, Y. Dai, S. Maharjan, and Y. Zhang, ``Blockchain and federated learning for privacy-preserved data sharing in industrial IoT,'' \emph{IEEE Trans. Ind. Informat.}, vol. 16, pp. 2014--2024, 2020, doi: 10.1109/TII.2019.2942190.
+
+\bibitem{Mishra2022}
+A. Mishra and S. Choudhary, ``Data Privacy,'' in \emph{Proc. IEEE Symp. Security Privacy (Sp 2008)}, 2022, pp. 111--125, doi: 10.1109/SP.2008.33.
+
+\bibitem{Presetto2023}
+E. Presetto, S. Civitatese, G. Porter, F. Lalanda, and C. Bettini, ``Combining Public Human Activity Recognition Datasets to Mitigate Labeled Data Scarcity,'' \emph{arXiv preprint arXiv:2306.17305}, 2023.
+
+\bibitem{Sixt2023}
+L. Sixt and B. Wild, ``RenderGAN: Generating realistic labeled data,'' \emph{Frontiers in Robotics and AI}, vol. 5, 2016, URL: https://api.semanticscholar.org/CorpusID:2438523.
+
+\bibitem{Truong2020}
+Q. Truong and A. Walters, ``Sensitive data detection with high-throughput neural network models for financial institutions,'' \emph{arXiv preprint arXiv:2010.48550}, 2020.
+
+\bibitem{Uppal2020}
+R. Uppal and A. Sudhakar, ``Efficient Reinforcement Learning for Unsupervised Controlled Text Generation,'' \emph{arXiv preprint arXiv:2010.48550}, 2020.
+
+\bibitem{Vaswani2017}
+A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, ``Attention is all you need,'' in \emph{Advances in Neural Information Processing Systems}, I. Guyon, U. V. Luxburg, S. Bengio, H. Wallach, R. Fergus, S. Vishwanathan, and R. Garnett, Eds. Curran Associates, Inc., 2017, URL: https://proceedings.neurips.cc/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf.
+
+\bibitem{Weng2020}
+L. Weng, S. Yang, and H. Schütze, ``File/paper/2017/file,'' \emph{arXiv preprint arXiv:2001.11903}, 2020.
+
+\bibitem{Weng2022}
+W. Weng and M. Pratama, ``Autocommun cross domain adaptation under extreme label scarcity,'' \emph{IEEE Trans. Neural Netw. Learn. Syst.}, vol. PP, pp. 1--12, 2022, doi: 10.1109/TNNLS.2022.318356.
+
+\bibitem{Wu2023}
+S. Wu, O. Irsoy, S. Lu, V. Dabravolski, and M. Dredze, ``BloombergGPT: A Large Language Model for Finance,'' \emph{arXiv preprint arXiv:2303.17564}, 2023.
+
+\bibitem{Wu2022}
+S. Wu, W. Wang, and E. Tang, ``Synthetic data superset salient object detection,'' in \emph{Proc. 30th ACM Int. Conf. Multimedia}, 2022, doi: 10.1145/3503161.3547941.
+
+\bibitem{Yang2023}
+K. Yang, W. Liu, and C. Wang, ``FinBERT-Open-Source Financial Large Language Models,'' \emph{arXiv preprint arXiv:2306.06931}, 2023.
+
+\bibitem{Zhang2022}
+Z. Zhang, G. Tiiu, H. Ho, and Y. Zhang, ``Autonomous generation of service systems for household tasks,'' \emph{IEEE Trans. Circuits Syst. Video Technol.}, vol. 32, pp. 7478--7490, 2022, doi: 10.1109/TCSVT.2022.318957.
+
+\end{thebibliography}
+
+% Dòng dưới đây sẽ không cần thiết vì chúng ta đã sử dụng thebibliography
+% \bibliographystyle{IEEEtran}
+% \bibliography{references}
+
+\end{document}
